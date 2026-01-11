@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal" created-in="IU-242.23339.11">
+    <data-source name="device@localhost" uuid="ed775f73-8f3f-4fbd-b297-bf9b1ef8c3d4">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="POSTGRES" />
+      <user-name>device</user-name>
+      <schema-mapping />
+    </data-source>
+    <data-source name="userhome@localhost" uuid="81f78e78-93a6-445e-90ca-4c82999c92eb">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="POSTGRES" />
+      <user-name>userhome</user-name>
+      <schema-mapping />
+    </data-source>
+    <data-source name="automation@localhost" uuid="46e0354b-6bd2-4c2f-8606-1b12a9414ff5">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="MONGO" />
+      <schema-mapping />
+    </data-source>
+    <data-source name="sensor@localhost" uuid="25bdd9e8-5cd2-42c0-9ff5-779b9e4e64cc">
+      <database-info product="" version="" jdbc-version="" driver-name="" driver-version="" dbms="POSTGRES" />
+      <user-name>sensor</user-name>
+      <schema-mapping />
+    </data-source>
+  </component>
+</project>
