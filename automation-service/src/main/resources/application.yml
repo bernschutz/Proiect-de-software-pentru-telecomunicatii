@@ -1,0 +1,25 @@
+server:
+  port: ${SERVER_PORT:8084}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:change_me_in_production_please_32bytes_min}
+  internal-token: ${INTERNAL_TOKEN:internal_token_change_me}
+
+spring:
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/automation}
+
+services:
+  sensor-internal-url: ${SENSOR_INTERNAL_URL:http://localhost:8083}
+  device-internal-url: ${DEVICE_INTERNAL_URL:http://localhost:8082}
+
+automation:
+  evaluate-ms: 10000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
