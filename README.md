@@ -1,1 +1,1 @@
-# Proiect-de-software-pentru-telecomunica-ii
+# Proiect-de-software-pentru-telecomunicatii
