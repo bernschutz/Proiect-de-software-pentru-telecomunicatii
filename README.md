@@ -2,7 +2,7 @@
 
 Implementare **end‑to‑end**: UI Web + API Gateway + 4 microservicii Spring Boot + DB-uri în Docker.
 
-## Funcționalități (conform diagramei corecte)
+## Funcționalități 
 - **Home**: Create Home, Delete Home
 - **Devices**: Add, Delete, Status, ON/OFF
 - **Senzori**: Add, Delete, Vizualizare senzor (citiri)
