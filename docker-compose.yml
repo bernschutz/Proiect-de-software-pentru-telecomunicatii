@@ -1,0 +1,185 @@
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - USER_HOME_URL=http://user-home-service:8081
+      - DEVICE_URL=http://device-service:8082
+      - SENSOR_URL=http://sensor-service:8083
+      - AUTOMATION_URL=http://automation-service:8084
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_TOKEN=${INTERNAL_TOKEN}
+    depends_on:
+      user-home-service:
+        condition: service_started
+      device-service:
+        condition: service_started
+      sensor-service:
+        condition: service_started
+      automation-service:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    environment:
+      # ATENTIE: asta e folosit la build in multe setup-uri;
+      # oricum UI va chema gateway-ul pe localhost din browser.
+      - API_BASE=http://localhost:8080
+    depends_on:
+      gateway:
+        condition: service_started
+
+  # ---------- DATABASES ----------
+  user-home-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: userhome
+      POSTGRES_USER: userhome
+      POSTGRES_PASSWORD: userhome
+    volumes:
+      - userhome_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U userhome -d userhome"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  device-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: device
+      POSTGRES_USER: device
+      POSTGRES_PASSWORD: device
+    volumes:
+      - device_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U device -d device"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  sensor-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: sensor
+      POSTGRES_USER: sensor
+      POSTGRES_PASSWORD: sensor
+    volumes:
+      - sensor_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sensor -d sensor"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  influxdb:
+    image: influxdb:2.7
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: adminadmin
+      DOCKER_INFLUXDB_INIT_ORG: smarthome
+      DOCKER_INFLUXDB_INIT_BUCKET: readings
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: supersecrettoken
+    volumes:
+      - influx_data:/var/lib/influxdb2
+    healthcheck:
+      test: [ "CMD", "influx", "ping", "--host", "http://localhost:8086" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+
+  # ---------- SERVICES ----------
+  user-home-service:
+    build: ./user-home-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-home-db:5432/userhome
+      - SPRING_DATASOURCE_USERNAME=userhome
+      - SPRING_DATASOURCE_PASSWORD=userhome
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - JWT_SECRET=${JWT_SECRET:-change_me_in_production_please_32bytes_min}
+    depends_on:
+      user-home-db:
+        condition: service_healthy
+
+  device-service:
+    build: ./device-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SERVER_PORT=8082
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://device-db:5432/device
+      - SPRING_DATASOURCE_USERNAME=device
+      - SPRING_DATASOURCE_PASSWORD=device
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - JWT_SECRET=${JWT_SECRET:-change_me_in_production_please_32bytes_min}
+      - INTERNAL_TOKEN=${INTERNAL_TOKEN:-internal_token_change_me}
+    depends_on:
+      device-db:
+        condition: service_healthy
+
+  sensor-service:
+    build: ./sensor-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SERVER_PORT=8083
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sensor-db:5432/sensor
+      - SPRING_DATASOURCE_USERNAME=sensor
+      - SPRING_DATASOURCE_PASSWORD=sensor
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - JWT_SECRET=${JWT_SECRET:-change_me_in_production_please_32bytes_min}
+      - INTERNAL_TOKEN=${INTERNAL_TOKEN:-internal_token_change_me}
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_TOKEN=supersecrettoken
+      - INFLUX_ORG=smarthome
+      - INFLUX_BUCKET=readings
+    depends_on:
+      sensor-db:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+
+  automation-service:
+    build: ./automation-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SERVER_PORT=8084
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/automation
+      - JWT_SECRET=${JWT_SECRET:-change_me_in_production_please_32bytes_min}
+      - INTERNAL_TOKEN=${INTERNAL_TOKEN:-internal_token_change_me}
+      - SENSOR_INTERNAL_URL=http://sensor-service:8083
+      - DEVICE_INTERNAL_URL=http://device-service:8082
+    depends_on:
+      mongo:
+        condition: service_healthy
+      sensor-service:
+        condition: service_started
+      device-service:
+        condition: service_started
+
+volumes:
+  userhome_pg:
+  device_pg:
+  sensor_pg:
+  mongo_data:
+  influx_data:

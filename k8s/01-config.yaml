@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smarthome-config
+  namespace: smarthome
+data:
+  JWT_SECRET: "change_me_in_production_please_32bytes_min"
+  INTERNAL_TOKEN: "internal_token_change_me"

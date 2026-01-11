@@ -1,0 +1,28 @@
+server:
+  port: ${SERVER_PORT:8083}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:change_me_in_production_please_32bytes_min}
+  internal-token: ${INTERNAL_TOKEN:internal_token_change_me}
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/sensor}
+    username: ${SPRING_DATASOURCE_USERNAME:sensor}
+    password: ${SPRING_DATASOURCE_PASSWORD:sensor}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+influx:
+  url: ${INFLUX_URL:http://localhost:8086}
+  token: ${INFLUX_TOKEN:supersecrettoken}
+  org: ${INFLUX_ORG:smarthome}
+  bucket: ${INFLUX_BUCKET:readings}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

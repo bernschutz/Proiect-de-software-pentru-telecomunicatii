@@ -1,0 +1,26 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:change_me_in_production_please_32bytes_min}
+    expiration-seconds: 86400
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/userhome}
+    username: ${SPRING_DATASOURCE_USERNAME:userhome}
+    password: ${SPRING_DATASOURCE_PASSWORD:userhome}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
