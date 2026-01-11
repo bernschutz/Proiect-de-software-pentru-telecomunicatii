@@ -1,0 +1,22 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:change_me_in_production_please_32bytes_min}
+  internal-token: ${INTERNAL_TOKEN:internal_token_change_me}
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/device}
+    username: ${SPRING_DATASOURCE_USERNAME:device}
+    password: ${SPRING_DATASOURCE_PASSWORD:device}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
